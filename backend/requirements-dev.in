@@ -1,0 +1,6 @@
+# Development and CI only. Kept out of requirements.in so the production image
+# does not ship the test and lint toolchain.
+-c requirements.txt
+pytest-django>=4.8
+pytest>=8.0
+ruff>=0.6

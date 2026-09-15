@@ -1,0 +1,15 @@
+line-length = 110
+target-version = "py313"
+
+extend-exclude = [
+    "venv",
+    "migrations",
+]
+
+[lint]
+# Start narrow: pyflakes (F), pycodestyle errors (E), and import sorting (I).
+# Expand the rule set deliberately in a follow-up once the baseline is clean.
+select = ["E", "F", "I"]
+
+[lint.isort]
+known-first-party = ["assets_app", "config"]

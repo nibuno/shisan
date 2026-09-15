@@ -1,0 +1,16 @@
+services:
+  backend:
+    environment:
+      DJANGO_ENV: production
+      DJANGO_SECRET_KEY: local-production-like-secret-change-me
+      DJANGO_DEBUG: "False"
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,web
+      DATABASE_URL: postgresql://shisan:shisan@db:5432/shisan
+      CORS_ALLOWED_ORIGINS: http://localhost:8080
+      CSRF_TRUSTED_ORIGINS: http://localhost:8080
+      # Local smoke tests run over HTTP. Real production should set these to True behind HTTPS.
+      SESSION_COOKIE_SECURE: "False"
+      CSRF_COOKIE_SECURE: "False"
+      # nginx forwards X-Forwarded-Proto: http locally, so the redirect would bounce every
+      # request. Behind the ALB the header says https and the default True applies.
+      SECURE_SSL_REDIRECT: "False"

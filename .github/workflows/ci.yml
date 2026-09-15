@@ -1,0 +1,159 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: backend (lint / test / deploy check)
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: shisan
+          POSTGRES_USER: shisan
+          POSTGRES_PASSWORD: shisan
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U shisan -d shisan"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://shisan:shisan@localhost:5432/shisan
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-dev.txt
+
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt -r backend/requirements-dev.txt
+
+      - name: Ruff
+        run: ruff check backend
+
+      - name: Pytest (against PostgreSQL service container)
+        working-directory: backend
+        run: pytest
+
+      - name: Django deploy check (production settings)
+        working-directory: backend
+        env:
+          DJANGO_ENV: production
+          DJANGO_ALLOWED_HOSTS: example.com
+        run: |
+          # A short SECRET_KEY trips security.W009 and fails the check for no useful
+          # reason, so generate a long CI-only dummy value here instead of hardcoding one.
+          export DJANGO_SECRET_KEY="$(python -c 'import secrets; print(secrets.token_urlsafe(64))')"
+          python manage.py check --deploy --fail-level WARNING
+
+  frontend:
+    name: frontend (lint / test / build)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Test
+        working-directory: frontend
+        run: npm test
+
+      - name: Build
+        working-directory: frontend
+        run: npm run build
+
+  prod-like-smoke:
+    name: prod-like docker compose smoke
+    runs-on: ubuntu-latest
+    needs: backend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Start prod-like stack
+        run: docker compose -f docker-compose.yml -f docker-compose.prod-like.yml up -d --build db backend web
+
+      - name: Wait for backend to become ready
+        run: |
+          ready=""
+          for i in $(seq 1 60); do
+            http_status="$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/api/health/ || true)"
+            if [ "$http_status" = "200" ]; then
+              echo "backend is ready (attempt $i)"
+              ready=1
+              break
+            fi
+            echo "waiting for backend... (attempt $i, status=$http_status)"
+            sleep 2
+          done
+          if [ -z "$ready" ]; then
+            echo "backend did not become ready in time"
+            docker compose -f docker-compose.yml -f docker-compose.prod-like.yml logs backend
+            exit 1
+          fi
+
+      - name: Verify prod-like smoke endpoints
+        run: |
+          check_status() {
+            url="$1"
+            expected="$2"
+            http_status="$(curl -s -o /dev/null -w '%{http_code}' "$url")"
+            if [ "$http_status" != "$expected" ]; then
+              echo "::error::$url expected HTTP $expected but got $http_status"
+              return 1
+            fi
+            echo "OK: $url -> $http_status"
+          }
+
+          failed=0
+          check_status "http://localhost:8080/api/health/" "200" || failed=1
+          check_status "http://localhost:8080/api/health/db/" "200" || failed=1
+          check_status "http://localhost:8080/api/docs" "404" || failed=1
+          check_status "http://localhost:8080/api/openapi.json" "404" || failed=1
+          check_status "http://localhost:8080/api/auth/csrf/" "200" || failed=1
+
+          if [ "$failed" != "0" ]; then
+            exit 1
+          fi
+
+      - name: Show backend logs on failure
+        if: failure()
+        run: docker compose -f docker-compose.yml -f docker-compose.prod-like.yml logs backend
+
+      - name: Tear down stack
+        if: always()
+        run: docker compose -f docker-compose.yml -f docker-compose.prod-like.yml down
