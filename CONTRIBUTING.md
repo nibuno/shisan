@@ -7,8 +7,8 @@ Thanks for taking an interest in shisan.
 You need Docker and Node 20+. Everything else runs in containers.
 
 ```bash
-git clone https://github.com/nibuno/shisan-public.git
-cd shisan-public
+git clone https://github.com/nibuno/shisan.git
+cd shisan
 docker compose up -d --build
 docker compose exec backend python manage.py migrate
 docker compose exec backend python manage.py createsuperuser

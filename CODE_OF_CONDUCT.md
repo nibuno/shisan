@@ -26,7 +26,7 @@ when representing the project in public.
 ## Enforcement
 
 Report unacceptable behaviour to the maintainers through
-[GitHub's private reporting](https://github.com/nibuno/shisan-public/security/advisories/new)
+[GitHub's private reporting](https://github.com/nibuno/shisan/security/advisories/new)
 or by contacting a maintainer directly. Reports are handled confidentially.
 
 Maintainers may edit or remove contributions that violate this document, and

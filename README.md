@@ -11,8 +11,8 @@
 ## セットアップ
 
 ```bash
-git clone https://github.com/nibuno/shisan-public.git
-cd shisan-public
+git clone https://github.com/nibuno/shisan.git
+cd shisan
 ```
 
 ### バックエンド

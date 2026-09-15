@@ -5,7 +5,7 @@
 **Please do not report security issues in public issues or pull requests.**
 
 Use GitHub's private vulnerability reporting on this repository:
-[Report a vulnerability](https://github.com/nibuno/shisan-public/security/advisories/new).
+[Report a vulnerability](https://github.com/nibuno/shisan/security/advisories/new).
 It opens a private channel visible only to the maintainers.
 
 Please include:
