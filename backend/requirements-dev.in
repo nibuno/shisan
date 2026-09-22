@@ -3,4 +3,4 @@
 -c requirements.txt
 pytest-django>=4.8
 pytest>=8.0
-ruff>=0.6
+ruff>=0.16.8

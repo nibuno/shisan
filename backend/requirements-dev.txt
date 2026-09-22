@@ -7,18 +7,16 @@
 iniconfig==2.3.0
     # via pytest
 packaging==26.2
-    # via
-    #   -c backend/requirements.txt
-    #   pytest
+    # via pytest
 pluggy==1.6.0
     # via pytest
 pygments==2.21.0
     # via pytest
 pytest==9.1.1
     # via
-    #   -r backend/requirements-dev.in
+    #   -r requirements-dev.in
     #   pytest-django
 pytest-django==4.14.0
-    # via -r backend/requirements-dev.in
-ruff==0.16.3
-    # via -r backend/requirements-dev.in
+    # via -r requirements-dev.in
+ruff==0.16.8
+    # via -r requirements-dev.in
