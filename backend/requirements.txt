@@ -10,22 +10,20 @@ asgiref==3.11.1
     # via
     #   django
     #   django-cors-headers
-django==5.2.13
+django==6.0.8
     # via
-    #   -r backend/requirements.in
+    #   -r requirements.in
     #   django-cors-headers
     #   django-ninja
 django-cors-headers==4.9.0
-    # via -r backend/requirements.in
-django-ninja==1.6.2
-    # via -r backend/requirements.in
-gunicorn==25.3.0
-    # via -r backend/requirements.in
-packaging==26.2
-    # via gunicorn
-psycopg==3.3.4
-    # via -r backend/requirements.in
-psycopg-binary==3.3.4
+    # via -r requirements.in
+django-ninja==1.7.1
+    # via -r requirements.in
+gunicorn==26.2.0
+    # via -r requirements.in
+psycopg==3.3.6
+    # via -r requirements.in
+psycopg-binary==3.3.6
     # via psycopg
 pydantic==2.13.3
     # via django-ninja
