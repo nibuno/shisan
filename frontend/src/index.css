@@ -244,11 +244,17 @@ body {
 }
 
 /* ── Page header ──────────────────────────────── */
+/*
+ * 右側に置くもの（ボタン・なし）でページごとに行の高さが変わると、
+ * タブを移るたびに見出しが上下に揺れる。ボタンが収まる高さで固定する。
+ */
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--space-4);
   margin-bottom: var(--space-6);
+  min-height: 2.5rem;
 }
 
 .page-header h1 {
@@ -1738,6 +1744,93 @@ tr:hover td {
 
   .chart-surface {
     padding: var(--space-3) var(--space-1) var(--space-2);
+  }
+
+  /*
+   * 資産一覧。5列の表を狭い幅に押し込むと1〜2文字ごとに折り返すため、
+   * 1行を「資産名＋操作」「カテゴリ・名義人・用途」の2段に組み替える。
+   */
+  .assets-table thead {
+    display: none;
+  }
+
+  .assets-table tbody,
+  .assets-table tr,
+  .assets-table td {
+    display: block;
+  }
+
+  .assets-table tr {
+    align-items: center;
+    border-bottom: 1px solid var(--border-soft);
+    column-gap: var(--space-2);
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr) auto;
+    padding: var(--space-3) var(--space-4);
+    row-gap: var(--space-1);
+  }
+
+  .assets-table tr:last-child {
+    border-bottom: 0;
+  }
+
+  .assets-table td,
+  .assets-table tr:hover td {
+    background: transparent;
+    border-bottom: 0;
+    padding: 0;
+  }
+
+  .assets-table .assets-cell-name {
+    grid-column: 1 / 4;
+    grid-row: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .assets-table .assets-cell-actions {
+    grid-column: 4;
+    grid-row: 1 / 3;
+  }
+
+  .assets-table .assets-cell-category,
+  .assets-table .assets-cell-owner,
+  .assets-table .assets-cell-purpose {
+    color: var(--text-muted);
+    font-size: var(--font-size-note);
+    grid-row: 2;
+    white-space: nowrap;
+  }
+
+  .assets-table .assets-cell-purpose {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .assets-table .assets-cell-owner::before,
+  .assets-table .assets-cell-purpose::before {
+    content: "·";
+    margin-right: var(--space-2);
+  }
+
+  /* 用途が未設定なら、区切りごと出さない */
+  .assets-table .assets-cell-purpose:has(.assets-purpose-empty) {
+    display: none;
+  }
+
+  .assets-table .assets-cell-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+  }
+
+  /* 指で押せる大きさを確保する */
+  .assets-table .action-cell {
+    gap: 0;
+  }
+
+  .assets-table .action-link {
+    min-height: 44px;
+    padding: 0 var(--space-2);
   }
 }
 

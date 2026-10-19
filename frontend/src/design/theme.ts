@@ -1,22 +1,23 @@
 /*
  * データ色の設計方針。
  *
- * 画面には「カテゴリ」「口座・資産の系列」「合計と予測」の3種類のデータ色が
- * 同時に出る。これらは全18色あり、次の2条件を満たすよう数値で決めてある。
+ * カテゴリ色は「凡例や積み上げで隣り合っても見分けられる」ことを数値で保証する。
+ * dataviz の validate_palette.js（OKLab）で、次をすべて満たす並びにしてある。
  *
- *   - 相互の色差が CIEDE2000 で 15 以上（凡例で隣り合っても見分けられる）
- *   - 背景 --bg #f7f6f1 とのコントラストが 3:1 以上（線や面として視認できる）
+ *   - 隣り合う色の差が通常の色覚で ΔE 15 以上、色覚多様性シミュレーションで ΔE 8 以上
+ *   - 彩度 C 0.10 以上（灰色に見えない）、明度 L 0.43〜0.77 の帯に収まる
+ *   - カード面 --card-bg とのコントラストが 3:1 以上（線や面として視認できる）
  *
+ * 並びは初期カテゴリの順（NISA・iDeCo・現金・銀行）を先頭にしている。
  * 緑は構造色（ブランド・主要操作）に予約しているので、データ色には使わない。
- * 色相はカテゴリの意味に紐づくため、調整は明度・彩度を優先して行う。
  */
 const ASSET_CATEGORY_COLORS = {
-  bank: "#4a95c5",
-  nisa: "#dc6e58",
-  investment: "#ba8428",   // 元の #d39a36 はコントラスト 2.30 で線として薄すぎた
-  insurance: "#c36786",
-  pension: "#8572b2",
-  other: "#5c8288",        // 銀行の青と ΔE 12.7 しかなかったため彩度を落とした
+  nisa: "#c4553b",
+  pension: "#7560b4",    // iDeCo・年金
+  cash: "#9a7012",
+  bank: "#2f86c2",
+  investment: "#8e3a6b", // 証券・株・投資信託
+  insurance: "#1d93a8",
 } as const;
 
 /*
@@ -52,8 +53,10 @@ export function getChartSeriesColor(id: number): string {
 
 export function getAssetCategoryColor(categoryName: string, categoryId: number): string {
   if (/NISA|ニーサ/i.test(categoryName)) return ASSET_CATEGORY_COLORS.nisa;
-  if (/銀行|預金|現金/.test(categoryName)) return ASSET_CATEGORY_COLORS.bank;
-  if (/年金/.test(categoryName)) return ASSET_CATEGORY_COLORS.pension;
+  if (/iDeCo|イデコ|年金/i.test(categoryName)) return ASSET_CATEGORY_COLORS.pension;
+  // 現金と銀行は初期カテゴリに両方あるので、同じ色にしてはいけない
+  if (/現金/.test(categoryName)) return ASSET_CATEGORY_COLORS.cash;
+  if (/銀行|預金/.test(categoryName)) return ASSET_CATEGORY_COLORS.bank;
   if (/保険/.test(categoryName)) return ASSET_CATEGORY_COLORS.insurance;
   if (/証券|株|投資|ファンド/.test(categoryName)) return ASSET_CATEGORY_COLORS.investment;
 

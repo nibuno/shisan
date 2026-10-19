@@ -116,7 +116,7 @@ export default function AssetsPage() {
       </div>
 
       <div className="table-container">
-        <table>
+        <table className="assets-table">
           <thead>
             <tr>
               <th>資産名</th>
@@ -129,15 +129,15 @@ export default function AssetsPage() {
           <tbody>
             {assets.length === 0 ? (
               <tr>
-                <td colSpan={5} className="empty-state">
+                <td colSpan={5} className="empty-state assets-cell-empty">
                   資産が登録されていません
                 </td>
               </tr>
             ) : (
               assets.map((asset) => (
                 <tr key={asset.id}>
-                  <td className="table-primary">{asset.name}</td>
-                  <td>
+                  <td className="table-primary assets-cell-name">{asset.name}</td>
+                  <td className="assets-cell-category">
                     <span className="category-label">
                       <span
                         className="category-swatch"
@@ -152,9 +152,11 @@ export default function AssetsPage() {
                       {asset.category.name}
                     </span>
                   </td>
-                  <td>{asset.owner.name}</td>
-                  <td className="table-muted">{asset.purpose || "—"}</td>
-                  <td>
+                  <td className="assets-cell-owner">{asset.owner.name}</td>
+                  <td className="table-muted assets-cell-purpose">
+                    {asset.purpose || <span className="assets-purpose-empty">—</span>}
+                  </td>
+                  <td className="assets-cell-actions">
                     <div className="action-cell">
                       <button
                         className="action-link"
