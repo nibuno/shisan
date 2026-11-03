@@ -2,5 +2,5 @@
 # does not ship the test and lint toolchain.
 -c requirements.txt
 pytest-django>=4.8
-pytest>=8.0
-ruff>=0.6
+pytest>=9.2.0
+ruff>=0.17.3
